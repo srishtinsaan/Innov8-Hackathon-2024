@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Select Class Details</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            max-width: 400px;
+            width: 100%;
+        }
+
+        h2 {
+            text-align: center;
+        }
+
+        label {
+            display: block;
+            margin: 10px 0 5px;
+        }
+
+        select,
+        button {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        button {
+            background-color: #000000;
+            color: white;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #000000;
+        }
+
+        #subject-section {
+            display: none;
+            /* Initially hidden */
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <h2>Select Class Details</h2>
+
+        <!-- Class Section Dropdown -->
+        <label for="class-section">Choose Class Section:</label>
+        <select id="class-section" onchange="checkSection()">
+            <option value="">Select Section</option>
+            <option value="Section S">Section S</option>
+            <option value="Section SA">Section SA</option>
+            <option value="Section SD">Section SD</option>
+            <option value="Section SI">Section SI</option>
+        </select>
+
+        <!-- Subject Dropdown (Initially Hidden) -->
+        <div id="subject-section">
+            <label for="subject">Choose Subject:</label>
+            <select id="subject" name="subject" onchange="updateTimeSlots()">
+                <option value="">Select Subject</option>
+                <option value="SEPM">SEPM</option>
+                <option value="DSA">DSA</option>
+                <option value="DSA LAB">DSA LAB</option>
+            </select>
+        </div>
+
+        <!-- Time Slot Dropdown -->
+        <label for="timeslot">Choose Time Slot:</label>
+        <select id="timeslot" name="timeslot">
+            <option value="">Select Time Slot</option>
+            <!-- Options will be dynamically updated -->
+        </select>
+
+        <!-- Submit Button -->
+        <button type="button" onclick="submitSelection()">Start Attendance</button>
+
+        <!-- Display User Selection -->
+        <div id="result"></div>
+    </div>
+
+    <script>
+        // Check if the selected section is S or SA and show the subject dropdown
+        function checkSection() {
+            var section = document.getElementById("class-section").value;
+            var subjectSection = document.getElementById("subject-section");
+            var subjectDropdown = document.getElementById("subject");
+
+            subjectDropdown.innerHTML = '<option value = "">Select Subject </option>';
+
+            // Show subject dropdown if Section S or SA is selected
+            if (section === "Section S" || section === "Section SA") {
+                var subjects = ['DSA', 'DSA Lab'];
+                subjects.forEach(function (subject) {
+                    var option = document.createElement('option');
+                    option.value = subject;
+                    option.textContent = subject;
+                    subjectDropdown.appendChild(option);
+                });
+                subjectSection.style.display = "block";
+            } else if (section === "Section SD" || section === "Section SI") {
+                var subjects = ['SEPM'];
+                subjects.forEach(function (subject) {
+                    var option = document.createElement('option');
+                    option.value = subject;
+                    option.textContent = subject;
+                    subjectDropdown.appendChild(option);
+                });
+                subjectSection.style.display = "block";
+            }
+            else {
+                subjectSection.style.display = "none";
+            }
+
+        }
+        
+        var allTimeSlots = [
+        '8:00 AM - 8:50 AM', 
+        '8:50 AM - 9:40 AM', 
+        '9:40 AM - 10:30 AM', 
+        '10:30 AM - 11:20 AM', 
+        '11:20 AM - 12:05 PM', 
+        '12:05 PM - 12:50 PM'];
+
+        var limitedTimeSlots = [
+            '8:00 AM - 9:40 AM', 
+            '9:40 AM - 11:20 AM', 
+            '11:20 AM - 12:50 PM'];
+
+        function updateTimeSlots() {
+            var subject = document.getElementById("subject").value;
+            var timeSlotSelect = document.getElementById("timeslot");
+
+            timeSlotSelect.innerHTML = "";
+
+            let timeSlotsToShow = allTimeSlots;
+            
+            if (subject === 'DSA Lab') {
+                timeSlotsToShow = limitedTimeSlots;
+            }
+
+            timeSlotsToShow.forEach(slot => {
+                var option = document.createElement('option');
+                option.value = slot;
+                option.text = slot;
+
+                timeSlotSelect.add(option);
+            });
+        }
+        // Handle the form submission and display the selected values
+        function submitSelection() {
+            var section = document.getElementById("class-section").value;
+            var timeSlot = document.getElementById("timeslot").value;
+            var subject = document.getElementById("subject").value;
+            var resultDiv = document.getElementById("result");
+
+            // Check if both section and time slot are selected
+            if (section && timeslot) {
+                var displayMessage = "You have selected <strong>" + section + "</strong> for the time slot <strong>" + timeSlot + "</strong>.";
+
+                // Add the subject selection to the message if Section A or B is selected
+                if (section === "Section S" || section === "Section SA") {
+                    if (subject) {
+                        displayMessage += " Subject: <strong>" + subject + "</strong>.";
+                    } else {
+                        resultDiv.innerHTML = "<p style='color:red;'>Please select a subject.</p>";
+                        return;
+                    }
+                } else {
+                    if (section === "Section SD" || section === "Section SI") {
+                        if (subject) {
+                            displayMessage += " Subject: <strong>" + subject + "</strong>.";
+                        } else {
+                            resultDiv.innerHTML = "<p style='color:red;'>Please select a subject.</p>";
+                            return;
+                        }
+                    }
+                }
+                resultDiv.innerHTML = "<p>" + displayMessage + "</p>";
+            } else {
+                resultDiv.innerHTML = "<p style='color:red;'>Please select both class section and time slot.</p>";
+            }
+        }
+    </script>
+
+</body>
+
+</html>
